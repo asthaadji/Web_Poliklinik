@@ -13,19 +13,18 @@
         $no_ktp = mysqli_real_escape_string($connect, $_POST['no_ktp']);
         $no_hp = mysqli_real_escape_string($connect, $_POST['no_hp']);
 
-        // Set username dan password
-        $username = $nama; // username sama dengan nama
-        $password = $alamat; // password sama dengan alamat
-
-        // Generate default no_rm
-        $ktp_awal = substr($no_ktp, 0, 4); // 4 angka awal KTP
-        $ktp_akhir = substr($no_ktp, -2); // 2 angka terakhir KTP
-        $no_rm = "RM-" . $ktp_awal . "-" . $ktp_akhir;
+        // Generate no_rm berdasarkan tahun, bulan, dan urutan pasien
+        $tahun_bulan = date('Ym'); // Format tahun dan bulan, contoh: 202411
+        $query_count = "SELECT COUNT(*) AS total FROM pasien WHERE no_rm LIKE '$tahun_bulan%';";
+        $result_count = mysqli_query($connect, $query_count);
+        $row_count = mysqli_fetch_assoc($result_count);
+        $urutan = $row_count['total'] + 1; // Urutan pasien berikutnya
+        $no_rm = $tahun_bulan . '-' . $urutan;
 
         // Query untuk memasukkan data ke tabel pasien
-        $query = "INSERT INTO pasien (nama, alamat, no_ktp, no_hp, no_rm, username, password, level) 
-                  VALUES ('$nama', '$alamat', '$no_ktp', '$no_hp', '$no_rm', '$username', '$password', 'pasien')";
-
+        $query = "INSERT INTO pasien (nama, alamat, no_ktp, no_hp, no_rm, level) 
+                  VALUES ('$nama', '$alamat', '$no_ktp', '$no_hp', '$no_rm', 'pasien')";
+ 
         if (mysqli_query($connect, $query)) {
             // Jika berhasil, redirect ke halaman sukses
             header("Location: index.php");

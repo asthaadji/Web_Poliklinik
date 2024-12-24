@@ -30,6 +30,18 @@ $sql_obat = "SELECT COUNT(*) as total FROM obat";
 $result_obat = $conn->query($sql_obat);
 $total_obat = $result_obat->fetch_assoc()['total'];
 ?>
+<div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Dashboard Poliklinik Mitra Sehat</h1>
+          </div>
+          <!-- /.col -->
+          <div class="col-sm-6">
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
 <section class="content">
     <div class="container-fluid">
         <!-- Small boxes (Stat box) -->

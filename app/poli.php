@@ -67,6 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo "ID tidak boleh kosong!";
         }
+    } elseif ($action == 'fetch') {
+        // Ambil data poli berdasarkan ID
+        $id = $_POST['id'];
+
+        if (!empty($id)) {
+            $stmt = $conn->prepare("SELECT * FROM poli WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_assoc();
+            echo json_encode($data);
+            $stmt->close();
+        }
     }
     exit;
 }
@@ -163,7 +176,12 @@ if ($result->num_rows > 0) {
                     $('#poliId').val(poli.id);
                     $('#nama_poli').val(poli.nama_poli);
                     $('#keterangan').val(poli.keterangan);
+                    $('#poliModalLabel').text('Edit Poli');
                 });
+            } else {
+                $('#form')[0].reset();
+                $('#poliId').val('');
+                $('#poliModalLabel').text('Tambah Poli');
             }
             $('#poliModal').modal('show');
         }

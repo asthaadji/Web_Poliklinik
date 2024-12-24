@@ -69,6 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo "ID tidak boleh kosong!";
         }
+    } elseif ($action == 'fetch') {
+        // Ambil data obat berdasarkan ID
+        $id = $_POST['id'];
+
+        if (!empty($id)) {
+            $stmt = $conn->prepare("SELECT * FROM obat WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_assoc();
+            echo json_encode($data);
+            $stmt->close();
+        }
     }
     exit;
 }
@@ -172,7 +185,12 @@ if ($result->num_rows > 0) {
                     $('#nama_obat').val(obat.nama_obat);
                     $('#kemasan').val(obat.kemasan);
                     $('#harga').val(obat.harga);
+                    $('#obatModalLabel').text('Edit Obat');
                 });
+            } else {
+                $('#form')[0].reset();
+                $('#obatId').val('');
+                $('#obatModalLabel').text('Tambah Obat');
             }
             $('#obatModal').modal('show');
         }

@@ -6,11 +6,11 @@
     // Periksa apakah form telah disubmit
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Ambil data dari form
-        $username = mysqli_real_escape_string($connect, $_POST['username']);
-        $password = mysqli_real_escape_string($connect, $_POST['password']);
+        $nama = mysqli_real_escape_string($connect, $_POST['nama']);
+        $alamat = mysqli_real_escape_string($connect, $_POST['alamat']);
 
         // Query untuk memeriksa login
-        $query = "SELECT * FROM dokter WHERE username = '$username' AND password = '$password'";
+        $query = "SELECT * FROM dokter WHERE nama = '$nama' AND alamat = '$alamat'";
         $result = mysqli_query($connect, $query);
 
         if (mysqli_num_rows($result) == 1) {
@@ -94,14 +94,14 @@
     <div class="container">
         <h2>Login Dokter</h2>
         <?php if (isset($_GET['error'])): ?>
-            <p class="error">Username atau password salah!</p>
+            <p class="error">Nama atau alamat salah!</p>
         <?php endif; ?>
         <form method="POST" action="logindokter.php">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+            <label for="nama">Username</label>
+            <input type="text" id="nama" name="nama" required>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <label for="alamat">Password</label>
+            <input type="password" id="alamat" name="alamat" required>
 
             <button type="submit">Login</button>
         </form>

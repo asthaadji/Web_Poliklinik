@@ -20,13 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $alamat = trim($_POST['alamat']);
         $no_hp = trim($_POST['no_hp']);
         $id_poli = intval(trim($_POST['id_poli']));
-        $username = trim($_POST['username']);
-        $password = trim($_POST['password']);
 
         // Validasi input
-        if ($nama && $alamat && $no_hp && $id_poli && $username && $password) {
-            $stmt = $conn->prepare("INSERT INTO dokter (nama, alamat, no_hp, id_poli, username, password, level) VALUES (?, ?, ?, ?, ?, ?, 'dokter')");
-            $stmt->bind_param("sssiss", $nama, $alamat, $no_hp, $id_poli, $username, $password);
+        if ($nama && $alamat && $no_hp && $id_poli) {
+            $stmt = $conn->prepare("INSERT INTO dokter (nama, alamat, no_hp, id_poli, level) VALUES (?, ?, ?, ?, 'dokter')");
+            $stmt->bind_param("sssi", $nama, $alamat, $no_hp, $id_poli);
             if ($stmt->execute()) {
                 echo "Data berhasil ditambahkan.";
             } else {
@@ -43,12 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $alamat = trim($_POST['alamat']);
         $no_hp = trim($_POST['no_hp']);
         $id_poli = intval(trim($_POST['id_poli']));
-        $username = trim($_POST['username']);
-        $password = trim($_POST['password']);
 
-        if ($id && $nama && $alamat && $no_hp && $id_poli && $username && $password) {
-            $stmt = $conn->prepare("UPDATE dokter SET nama=?, alamat=?, no_hp=?, id_poli=?, username=?, password=? WHERE id=?");
-            $stmt->bind_param("sssissi", $nama, $alamat, $no_hp, $id_poli, $username, $password, $id);
+        if ($id && $nama && $alamat && $no_hp && $id_poli) {
+            $stmt = $conn->prepare("UPDATE dokter SET nama=?, alamat=?, no_hp=?, id_poli=? WHERE id=?");
+            $stmt->bind_param("sssii", $nama, $alamat, $no_hp, $id_poli, $id);
             if ($stmt->execute()) {
                 echo "Data berhasil diupdate.";
             } else {
@@ -74,12 +70,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo "ID tidak boleh kosong!";
         }
+    } elseif ($action == 'fetch') {
+        // Ambil data dokter berdasarkan ID
+        $id = intval(trim($_POST['id']));
+        if ($id) {
+            $stmt = $conn->prepare("SELECT * FROM dokter WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_assoc();
+            echo json_encode($data);
+            $stmt->close();
+        }
     }
     exit;
 }
 
 // Ambil data dokter
-$sql = "SELECT dokter.id, dokter.nama, dokter.alamat, dokter.no_hp, dokter.username, dokter.password, poli.nama_poli, poli.id AS poli_id 
+$sql = "SELECT dokter.id, dokter.nama, dokter.alamat, dokter.no_hp, poli.nama_poli, poli.id AS poli_id 
         FROM dokter 
         INNER JOIN poli ON dokter.id_poli = poli.id";
 $result = $conn->query($sql);
@@ -124,8 +132,6 @@ if ($result_poli->num_rows > 0) {
                 <th>Alamat</th>
                 <th>No HP</th>
                 <th>Poli</th>
-                <th>Username</th>
-                <th>Password</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -137,8 +143,6 @@ if ($result_poli->num_rows > 0) {
                 <td><?= $doctor['alamat'] ?></td>
                 <td><?= $doctor['no_hp'] ?></td>
                 <td><?= $doctor['nama_poli'] ?></td>
-                <td><?= $doctor['username'] ?></td>
-                <td><?= $doctor['password'] ?></td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="showForm('edit', <?= $doctor['id'] ?>)">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteDoctor(<?= $doctor['id'] ?>)">Hapus</button>
@@ -182,14 +186,6 @@ if ($result_poli->num_rows > 0) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username:</label>
-                        <input type="text" class="form-control" name="username" id="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password:</label>
-                        <input type="password" class="form-control" name="password" id="password" required>
-                    </div>
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -201,18 +197,19 @@ if ($result_poli->num_rows > 0) {
     function showForm(action, id = null) {
         $('#action').val(action);
         if (action === 'edit' && id !== null) {
-            $.post('dokter.php', { action: 'fetch', id: id }, function(data) {
-                let doctor = JSON.parse(data);
+            $.post('dokter.php', { action: 'fetch', id: id }, function(response) {
+                let doctor = JSON.parse(response);
                 $('#doctorId').val(doctor.id);
                 $('#nama').val(doctor.nama);
                 $('#alamat').val(doctor.alamat);
                 $('#no_hp').val(doctor.no_hp);
-                $('#id_poli').val(doctor.poli_id);
-                $('#username').val(doctor.username);
-                $('#password').val(doctor.password);
+                $('#id_poli').val(doctor.id_poli);
+                $('#doctorModalLabel').text('Edit Dokter');
             });
         } else {
-            $('#form')[0].reset(); // Reset form untuk Add
+            $('#form')[0].reset();
+            $('#doctorId').val('');
+            $('#doctorModalLabel').text('Tambah Dokter');
         }
         $('#doctorModal').modal('show');
     }

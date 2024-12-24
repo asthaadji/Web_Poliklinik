@@ -3,18 +3,29 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>
-                Dashboard
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="index.php?page=dashboard" class="nav-link">
+                  <i class="nav-icon fas fa-th"></i>
+                  <p>
+                    Dashboard
+                    <span class="right badge badge-success">Dokter</span>
+                  </p>
+                </a>
+              </li>
               <li class="nav-item">
-                <a href="./index.html" class="nav-link active">
+                <a href="index.php?page=jadwal-periksa" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Daftar</p>
+                  <p>Jadwal Periksa
+                  <span class="right badge badge-success">Dokter</span>
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="index.php?page=profile-dokter" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Profile
+                  <span class="right badge badge-success">Dokter</span>
+                  </p>
                 </a>
               </li>
               <li class="nav-item">
@@ -25,7 +36,6 @@
                   </p>
                 </a>
               </li>
-            </ul>
           </li>
         </ul>
       </nav>
