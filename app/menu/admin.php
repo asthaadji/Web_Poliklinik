@@ -44,7 +44,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="index.php?page=data-dokter" class="nav-link">
+                <a href="index.php?page=jadwal-periksa-admin" class="nav-link">
                   <i class="far fa-file nav-icon"></i>
                   <p>Jadwal Periksa
                   <span class="right badge badge-danger">Admin</span>
@@ -52,7 +52,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="index.php?page=data-dokter" class="nav-link">
+                <a href="index.php?page=antrian-admin" class="nav-link">
                   <i class="fas fa-list-alt nav-icon"></i>
                   <p>Antrian
                   <span class="right badge badge-danger">Admin</span>

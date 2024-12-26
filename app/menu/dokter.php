@@ -21,6 +21,22 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="index.php?page=periksadokter" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Periksa
+                  <span class="right badge badge-success">Dokter</span>
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="index.php?page=riwayat-periksa" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Riwayat Periksa
+                  <span class="right badge badge-success">Dokter</span>
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="index.php?page=profile-dokter" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Profile

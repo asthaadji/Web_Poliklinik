@@ -122,11 +122,11 @@
             <a href="logindokter.php">Login Dokter</a>
         </div>
     </div>
-    <div class="contents">
+    <!-- <div class="contents">
         <div class="buttons">
             <a href="loginadmin.php">Login Admin</a>
         </div>
-    </div><br>
+    </div><br> -->
 
     <footer>
         <p>&copy; 2024 Poliklinik Mitra Sehat</p>

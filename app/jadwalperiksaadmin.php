@@ -15,30 +15,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Validasi sesi login
-if (!isset($_SESSION['nama']) || !isset($_SESSION['level']) || $_SESSION['level'] !== 'dokter') {
-    die("<script>alert('Anda tidak memiliki akses ke halaman ini. Silakan login sebagai dokter.'); window.location.href = 'login.php';</script>");
+// Validasi sesi login (khusus untuk admin)
+if (!isset($_SESSION['nama']) || !isset($_SESSION['level']) || $_SESSION['level'] !== 'admin') {
+    die("<script>alert('Anda tidak memiliki akses ke halaman ini. Silakan login sebagai admin.'); window.location.href = 'login.php';</script>");
 }
-
-$nama_session = $_SESSION['nama'];
-
-// Ambil ID dokter berdasarkan nama dari tabel dokter
-$stmt = $conn->prepare("SELECT id FROM dokter WHERE nama = ?");
-$stmt->bind_param("s", $nama_session);
-$stmt->execute();
-$result = $stmt->get_result();
-$dokter = $result->fetch_assoc();
-
-if (!$dokter) {
-    die("<script>alert('Data dokter tidak ditemukan di database.'); window.location.href = 'login.php';</script>");
-}
-$id_dokter = $dokter['id'];
 
 // Handle request untuk CRUD
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
 
     if ($action === 'add') {
+        $id_dokter = $_POST['id_dokter'];
         $hari = $_POST['hari'];
         $jam_mulai = $_POST['jam_mulai'];
         $jam_selesai = $_POST['jam_selesai'];
@@ -54,13 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     } elseif ($action === 'edit') {
         $id = $_POST['id'];
+        $id_dokter = $_POST['id_dokter'];
         $hari = $_POST['hari'];
         $jam_mulai = $_POST['jam_mulai'];
         $jam_selesai = $_POST['jam_selesai'];
         $status = $_POST['status'];
 
-        $stmt = $conn->prepare("UPDATE jadwal_periksa SET hari = ?, jam_mulai = ?, jam_selesai = ?, status = ? WHERE id = ? AND id_dokter = ?");
-        $stmt->bind_param("sssisi", $hari, $jam_mulai, $jam_selesai, $status, $id, $id_dokter);
+        $stmt = $conn->prepare("UPDATE jadwal_periksa SET id_dokter = ?, hari = ?, jam_mulai = ?, jam_selesai = ?, status = ? WHERE id = ?");
+        $stmt->bind_param("issssi", $id_dokter, $hari, $jam_mulai, $jam_selesai, $status, $id);
         if ($stmt->execute()) {
             echo "<script>alert('Jadwal berhasil diperbarui.'); location.reload();</script>";
         } else {
@@ -70,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'delete') {
         $id = $_POST['id'];
 
-        $stmt = $conn->prepare("DELETE FROM jadwal_periksa WHERE id = ? AND id_dokter = ?");
-        $stmt->bind_param("ii", $id, $id_dokter);
+        $stmt = $conn->prepare("DELETE FROM jadwal_periksa WHERE id = ?");
+        $stmt->bind_param("i", $id);
         if ($stmt->execute()) {
             echo "<script>alert('Jadwal berhasil dihapus.'); location.reload();</script>";
         } else {
@@ -81,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'fetch') {
         $id = $_POST['id'];
 
-        $stmt = $conn->prepare("SELECT * FROM jadwal_periksa WHERE id = ? AND id_dokter = ?");
-        $stmt->bind_param("ii", $id, $id_dokter);
+        $stmt = $conn->prepare("SELECT * FROM jadwal_periksa WHERE id = ?");
+        $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         $jadwal = $result->fetch_assoc();
@@ -92,16 +80,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Query untuk mendapatkan data jadwal periksa milik dokter yang login
+// Query untuk mendapatkan semua data jadwal periksa
 $sql = "
-    SELECT id, hari, jam_mulai, jam_selesai, status
-    FROM jadwal_periksa
-    WHERE id_dokter = ?
+    SELECT jp.id, jp.hari, jp.jam_mulai, jp.jam_selesai, jp.status, d.nama AS nama_dokter
+    FROM jadwal_periksa jp
+    JOIN dokter d ON jp.id_dokter = d.id
 ";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_dokter);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -109,45 +94,47 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Periksa - Dr. <?= htmlspecialchars($nama_session) ?></title>
+    <title>Jadwal Periksa - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container mt-4">
-    <h1>Jadwal Periksa - Dr. <?= htmlspecialchars($nama_session) ?></h1>
+    <h1>Jadwal Periksa - Admin</h1>
     <button class="btn btn-primary mb-3" onclick="showTambah()">+ Tambah Jadwal</button>
     <table class="table table-bordered">
         <thead>
-            <tr>
-                <th>No</th>
-                <th>Hari</th>
-                <th>Jam Mulai</th>
-                <th>Jam Selesai</th>
-                <th>Status</th>
-                <th>Aksi</th>
-            </tr>
+        <tr>
+            <th>No</th>
+            <th>Dokter</th>
+            <th>Hari</th>
+            <th>Jam Mulai</th>
+            <th>Jam Selesai</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
         </thead>
         <tbody>
-            <?php
-            if ($result->num_rows > 0) {
-                $no = 1;
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $no++ . "</td>";
-                    echo "<td>" . htmlspecialchars($row['hari']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['jam_mulai']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['jam_selesai']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['status']) . "</td>";
-                    echo "<td>
-                        <button class='btn btn-warning btn-sm' onclick='showEdit(" . $row['id'] . ")'>Edit</button>
-                        <button class='btn btn-danger btn-sm' onclick='deleteJadwal(" . $row['id'] . ")'>Hapus</button>
-                    </td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='6' class='text-center'>Tidak ada data</td></tr>";
-            }
-            ?>
+        <?php if ($result->num_rows > 0): ?>
+            <?php $no = 1; ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($row['nama_dokter']) ?></td>
+                    <td><?= htmlspecialchars($row['hari']) ?></td>
+                    <td><?= htmlspecialchars($row['jam_mulai']) ?></td>
+                    <td><?= htmlspecialchars($row['jam_selesai']) ?></td>
+                    <td><?= htmlspecialchars($row['status']) ?></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="showEdit(<?= $row['id'] ?>)">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteJadwal(<?= $row['id'] ?>)">Hapus</button>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="7" class="text-center">Tidak ada data jadwal</td>
+            </tr>
+        <?php endif; ?>
         </tbody>
     </table>
 </div>
@@ -163,6 +150,10 @@ $result = $stmt->get_result();
             <div class="modal-body">
                 <form id="formTambah">
                     <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label for="dokter_tambah" class="form-label">Dokter</label>
+                        <input type="text" class="form-control" name="id_dokter" id="dokter_tambah" required>
+                    </div>
                     <div class="mb-3">
                         <label for="hari_tambah" class="form-label">Hari</label>
                         <input type="text" class="form-control" name="hari" id="hari_tambah" required>
@@ -194,6 +185,10 @@ $result = $stmt->get_result();
                 <form id="formEdit">
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" id="jadwalId_edit">
+                    <div class="mb-3">
+                        <label for="dokter_edit" class="form-label">Dokter</label>
+                        <input type="text" class="form-control" name="id_dokter" id="dokter_edit" required>
+                    </div>
                     <div class="mb-3">
                         <label for="hari_edit" class="form-label">Hari</label>
                         <input type="text" class="form-control" name="hari" id="hari_edit" required>
@@ -235,6 +230,7 @@ $result = $stmt->get_result();
         .then(response => response.json())
         .then(data => {
             document.getElementById('jadwalId_edit').value = data.id;
+            document.getElementById('dokter_edit').value = data.id_dokter;
             document.getElementById('hari_edit').value = data.hari;
             document.getElementById('jam_mulai_edit').value = data.jam_mulai;
             document.getElementById('jam_selesai_edit').value = data.jam_selesai;

@@ -53,6 +53,12 @@ include('../config/config.php');
         else if($_GET['page'] == 'data-pasien'){
           include ('pasien.php');
         }
+        else if($_GET['page'] == 'jadwal-periksa-admin'){
+          include ('jadwalperiksaadmin.php');
+        }
+        else if($_GET['page'] == 'antrian-admin'){
+          include ('antrianadmin.php');
+        }
         else if($_GET['page'] == 'profile-dokter'){
           include ('dokter/profiledokter.php');
         }
@@ -61,6 +67,15 @@ include('../config/config.php');
         }
         else if($_GET['page'] == 'daftarpoli'){
           include ('daftarpoli.php');
+        }
+        else if($_GET['page'] == 'periksadokter'){
+          include ('periksadokter.php');
+        }
+        else if($_GET['page'] == 'riwayat-periksa'){
+          include ('riwayatperiksa.php');
+        }
+        else if($_GET['page'] == 'hasil-periksa'){
+          include ('hasilperiksa.php');
         }
       }
     else{
