@@ -1,6 +1,7 @@
 Instruksi :
 
 - Import database yang ada di folder db
+- Gunakan Database poliklinik(3)
 - Import juga file yang ada di GitHub menjadi folder sistem_poliklinik
 - Beri nama databsase nya menjadi 'poliklinik'
 
