@@ -1,5 +1,5 @@
 <?php
-$connect = mysqli_connect('localhost','root','','poliklinik');
+$connect = mysqli_connect('localhost','root','','poli');
 
 // Mengecheck koneksi
 

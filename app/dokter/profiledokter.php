@@ -4,7 +4,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbname = "poliklinik";
+$dbname = "poli";
 
 $conn = new mysqli($host, $user, $password, $dbname);
 if ($conn->connect_error) {
