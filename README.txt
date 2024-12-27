@@ -1,11 +1,11 @@
 Instruksi :
 
 - Import database yang ada di folder db
-- Gunakan Database poliklinik(3)
-- Import juga file yang ada di GitHub menjadi folder sistem_poliklinik
-- Beri nama databsase nya menjadi 'poliklinik'
+- Gunakan Database poli
+- Import juga file yang ada di GitHub 
+- Beri nama databsase nya menjadi 'poli'
 
 Urutan Instalasi :
-- Import file dengan folder sistem_poliklinik
-- Import Database di mysql dengan nama 'poliklinik'
-- Buka di localhost dengan cara 'localhost/sistem_poliklinik'
+- Import file 
+- Import Database di mysql dengan nama 'poli'
+- Buka di localhost dengan cara 'localhost/(nama folder)'
